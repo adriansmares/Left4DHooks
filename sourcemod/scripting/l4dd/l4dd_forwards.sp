@@ -4878,7 +4878,7 @@ MRESReturn DTR_InfoChangelevel_SaveEntities_L4D1(int pThis, DHookParam hParams) 
 	Action aResult = Plugin_Continue;
 	Call_StartForward(g_hFWD_InfoChangelevel_SaveEntities);
 	Call_PushCell(pThis);
-	Call_PushCell(pKv);
+	Call_PushAddress(pKv);
 	Call_Finish(aResult);
 
 	if( aResult == Plugin_Handled )
@@ -4900,7 +4900,7 @@ MRESReturn DTR_InfoChangelevel_SaveEntities_Post_L4D1(int pThis, DHookParam hPar
 
 	Call_StartForward(g_bBlock_InfoChangelevel_SaveEntities_L4D1 ? g_hFWD_InfoChangelevel_SaveEntities_PostHandled : g_hFWD_InfoChangelevel_SaveEntities_Post);
 	Call_PushCell(pThis);
-	Call_PushCell(pKv);
+	Call_PushAddress(pKv);
 	Call_Finish();
 
 	return MRES_Ignored;
@@ -4970,7 +4970,7 @@ MRESReturn DTR_CTerrorPlayer_TransitionRestore_Post(int pThis, DHookReturn hRetu
 
 	Call_StartForward(g_bBlock_CTerrorPlayer_TransitionRestore ? g_hFWD_CTerrorPlayer_TransitionRestore_PostHandled : g_hFWD_CTerrorPlayer_TransitionRestore_Post);
 	Call_PushCell(pThis);
-	Call_PushCell(iReturn);
+	Call_PushAddress(iReturn);
 	Call_Finish();
 
 	return MRES_Ignored;
@@ -5883,7 +5883,7 @@ methodmap ScriptVariant
 {
 	public ScriptVariant(Address ptr)
 	{
-		return view_as<ScriptVariant>(ptr);
+		return view_as<ScriptVariant>(view_as<int>(ptr));
 	}
 
 	public bool AssignToInt( int& dest )
@@ -5963,7 +5963,7 @@ methodmap ScriptVariant
 
 	public void GetVector(float vec[3])
 	{
-		Address ptr = LoadFromAddress(this.m_pValue, NumberType_Int32);
+		Address ptr = LoadAddressFromAddress(this.m_pValue);
 		vec[0] = LoadFromAddress(ptr, NumberType_Int32);
 		vec[1] = LoadFromAddress(ptr + view_as<Address>(4), NumberType_Int32);
 		vec[2] = LoadFromAddress(ptr + view_as<Address>(8), NumberType_Int32);
@@ -5981,12 +5981,12 @@ methodmap ScriptVariant
 
 	property Address m_pValue
 	{
-		public get() { return view_as<Address>(this); }
+		public get() { return view_as<Address>(view_as<int>(this)); }
 	}
 
 	property Address m_pType
 	{
-		public get() { return view_as<Address>(this) + view_as<Address>(8); }
+		public get() { return view_as<Address>(view_as<int>(this)) + view_as<Address>(8); }
 	}
 }
 

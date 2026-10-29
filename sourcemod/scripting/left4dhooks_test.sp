@@ -872,15 +872,11 @@ Action sm_l4dd(int client, int args)
 	ArrayList aList;
 	for( int i = 0; i < 4; i++ )
 	{
-		aList = new ArrayList();
-
-		count = L4D_NavArea_GetAdjacentAreas(area, i, aList);
-		for( int x = 0; x < count; x++ )
+		Address[] adjacent = L4D_NavArea_GetAdjacentAreaArray(area, i);
+		for( int x = 0; x < adjacent.size; x++ )
 		{
-			PrintToServer("L4D_NavArea_GetAdjacentAreas (%d) %s == [%d]", area, sTemp[i], aList.Get(x));
+			PrintToServer("L4D_NavArea_GetAdjacentAreaArray (%d) %s == [%d]", area, sTemp[i], adjacent[x]);
 		}
-
-		delete aList;
 	}
 
 	// Returns:

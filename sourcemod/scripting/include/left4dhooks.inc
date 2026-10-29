@@ -249,6 +249,7 @@ public void __pl_l4dh_SetNTVOptional()
 	MarkNativeAsOptional("L4D_NavArea_GetZ");
 	MarkNativeAsOptional("L4D_NavArea_GetAdjacentCount");
 	MarkNativeAsOptional("L4D_NavArea_GetAdjacentAreas");
+	MarkNativeAsOptional("L4D_NavArea_FillAdjacentAreas");
 	MarkNativeAsOptional("L4D_NavArea_IsConnected");
 	MarkNativeAsOptional("L4D_NavArea_IsBlocked");
 	MarkNativeAsOptional("L4D_NavArea_GetElevator");
@@ -1148,7 +1149,7 @@ methodmap ConVarPtrWrapper {
 	 * @param p			Pointer (address) of ConVar
 	 */
 	public ConVarPtrWrapper(Address p) {
-		return view_as<ConVarPtrWrapper>(p);
+		return view_as<ConVarPtrWrapper>(view_as<int>(p));
 	}
 
 	/**
@@ -1180,7 +1181,7 @@ methodmap ConVarPtrWrapper {
 	 * @brief Retrieves the C string pointer for the convar
 	 */
 	property Address m_pszName {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(12), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(12), NumberType_Int32); }
 	}
 
 	/**
@@ -1190,21 +1191,21 @@ methodmap ConVarPtrWrapper {
 	 * @remarks m_pParent->m_pParent must equal m_pParent (ie: m_pParent must be the root, or original, ConVar)
 	 */
 	property ConVarPtrWrapper m_pParent {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(28), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(28), NumberType_Int32); }
 	}
 
 	/**
 	 * @brief DO NOT USE THIS PROPERTY. USE "GetFloat" INSTEAD. Retrieves the float value stored in this convar struct
 	 */
 	property float m_fValue {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(44), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(44), NumberType_Int32); }
 	}
 
 	/**
 	 * @brief DO NOT USE THIS PROPERTY. USE "GetInt" INSTEAD. Retrieves the integer value stored in this convar struct
 	 */
 	property int m_nValue {
-		public get() { return LoadFromAddress(view_as<Address>(this) + view_as<Address>(48), NumberType_Int32); }
+		public get() { return LoadFromAddress(view_as<Address>(view_as<int>(this)) + view_as<Address>(48), NumberType_Int32); }
 	}
 }
 
@@ -3732,7 +3733,7 @@ native bool L4D_GetRandomPZSpawnPosition(int client, int zombieClass, int attemp
  *
  * @return					The NavArea value, or 0 on failure probably
  */
-native any L4D_GetNearestNavArea(const float vecPos[3], float maxDist = 300.0, bool anyZ = false, bool checkLOS = false, bool checkGround = false, int teamID = 2);
+native Address L4D_GetNearestNavArea(const float vecPos[3], float maxDist = 300.0, bool anyZ = false, bool checkLOS = false, bool checkGround = false, int teamID = 2);
 
 /**
  * @brief Returns the nav address of the last known area
@@ -3741,7 +3742,7 @@ native any L4D_GetNearestNavArea(const float vecPos[3], float maxDist = 300.0, b
  *
  * @return					The nav area address or 0 on fail
  */
-native any L4D_GetLastKnownArea(int client);
+native Address L4D_GetLastKnownArea(int client);
 
 /**
  * @brief Returns if an entity is touching a trigger
@@ -3825,7 +3826,7 @@ native float L4D2_GetFurthestSurvivorFlow();
  *
  * @noreturn
  */
-native void L4D_FindRandomSpot(int NavArea, float vecPos[3]);
+native void L4D_FindRandomSpot(Address NavArea, float vecPos[3]);
 
 /**
  * @brief Checks if a player is visible to a specified position. Should be slightly faster than using TR_TraceRayFilterEx
@@ -3839,7 +3840,7 @@ native void L4D_FindRandomSpot(int NavArea, float vecPos[3]);
  * @return					True if visible, false otherwise
  */
 // L4D2 only
-native bool L4D2_IsVisibleToPlayer(int client, int team, int team_target, int NavArea, float vecPos[3]);
+native bool L4D2_IsVisibleToPlayer(int client, int team, int team_target, Address NavArea, float vecPos[3]);
 
 /**
  * @brief Returns true if any portion of the NavArea is visible to anyone on the given team
@@ -3849,7 +3850,7 @@ native bool L4D2_IsVisibleToPlayer(int client, int team, int team_target, int Na
  *
  * @return					True if visible, false otherwise
  */
-native bool L4D_IsPotentiallyVisibleToTeam(int navArea, int team);
+native bool L4D_IsPotentiallyVisibleToTeam(Address navArea, int team);
 
 /**
  * @brief Returns true if any portion of the NavArea is visible to the otherArea
@@ -3860,7 +3861,7 @@ native bool L4D_IsPotentiallyVisibleToTeam(int navArea, int team);
  *
  * @return					True if visible, false otherwise
  */
-native bool L4D_IsPotentiallyVisible(int navArea, int otherArea, bool ignoreDistance = true);
+native bool L4D_IsPotentiallyVisible(Address navArea, Address otherArea, bool ignoreDistance = true);
 
 /**
  * @brief Returns true if the given area is completely visible from somewhere in this area by someone on the team
@@ -3870,7 +3871,7 @@ native bool L4D_IsPotentiallyVisible(int navArea, int otherArea, bool ignoreDist
  *
  * @return					True if visible, false otherwise
  */
-native bool L4D_IsCompletelyVisibleToTeam(int navArea, int team);
+native bool L4D_IsCompletelyVisibleToTeam(Address navArea, int team);
 
 /**
  * @brief Returns true if the NavArea is visible to the otherArea is completely visible from somewhere in this area
@@ -3880,7 +3881,7 @@ native bool L4D_IsCompletelyVisibleToTeam(int navArea, int team);
  *
  * @return					True if visible, false otherwise
  */
-native bool L4D_IsCompletelyVisible(int navArea, int otherArea);
+native bool L4D_IsCompletelyVisible(Address navArea, Address otherArea);
 
 /**
  * @brief Gets the cluster for the given origin
@@ -5054,6 +5055,8 @@ native int L4D_NavArea_GetAdjacentCount(Address area, int direction);
 
 /**
  * @brief Fills a passed ArrayList with all adjacent areas in the given direction
+ * @remarks Deprecated: an ArrayList holds each area as a single cell, which reading it back as an Address sign-extends.
+ * @remarks Use L4D_NavArea_FillAdjacentAreas or L4D_NavArea_GetAdjacentAreaArray instead
  *
  *param area		The address of the NavArea
  *param direction	The direction to check in (NAV_NORTH, NAV_EAST, NAV_SOUTH, NAV_WEST) - provide value 0 to 3 only
@@ -5061,7 +5064,36 @@ native int L4D_NavArea_GetAdjacentCount(Address area, int direction);
  *
  * @return			Number of adjacent areas
  */
+#pragma deprecated Use L4D_NavArea_FillAdjacentAreas or L4D_NavArea_GetAdjacentAreaArray instead
 native int L4D_NavArea_GetAdjacentAreas(Address area, int direction, ArrayList list);
+
+/**
+ * @brief Fills a passed array with all adjacent areas in the given direction
+ * @remarks Use L4D_NavArea_GetAdjacentAreaArray to get them in an array of the right size
+ *
+ *param area		The address of the NavArea
+ *param direction	The direction to check in (NAV_NORTH, NAV_EAST, NAV_SOUTH, NAV_WEST) - provide value 0 to 3 only
+ *param areas		The array to fill with the addresses of adjacent areas, if they exist
+ *param maxlen		The size of the array; at most this many areas are written
+ *
+ * @return			Number of adjacent areas, which can be larger than maxlen
+ */
+native int L4D_NavArea_FillAdjacentAreas(Address area, int direction, Address[] areas, int maxlen);
+
+/**
+ * @brief Returns all adjacent areas in the given direction
+ *
+ *param area		The address of the NavArea
+ *param direction	The direction to check in (NAV_NORTH, NAV_EAST, NAV_SOUTH, NAV_WEST) - provide value 0 to 3 only
+ *
+ * @return			The addresses of the adjacent areas
+ */
+stock Address[] L4D_NavArea_GetAdjacentAreaArray(Address area, int direction)
+{
+	Address[] areas = new Address[L4D_NavArea_GetAdjacentCount(area, direction)];
+	L4D_NavArea_FillAdjacentAreas(area, direction, areas, areas.size);
+	return areas;
+}
 
 /**
  * @brief Connect this area to given area in given direction
@@ -6093,7 +6125,7 @@ native void L4D2Direct_SetInfernoMaxFlames(int entity, int flames);
  * @return				Address pointer
  */
 // L4D2 only
-native any L4D2Direct_GetScriptedEventManager();
+native Address L4D2Direct_GetScriptedEventManager();
 
 /**
  * Get the TerrorNavArea which holds a specific position

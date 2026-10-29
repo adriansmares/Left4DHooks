@@ -43,7 +43,7 @@ void LoadGameDataRules(GameData hGameData)
 	ValidateAddress(g_pTheNavAreas, "TheNavAreas", true);
 
 	g_pTheNavAreas_Size = g_pTheNavAreas + view_as<Address>(12);
-	g_pTheNavAreas_List = LoadFromAddress(g_pTheNavAreas, NumberType_Int32);
+	g_pTheNavAreas_List = LoadAddressFromAddress(g_pTheNavAreas);
 
 	if( g_bLeft4Dead2 )
 	{
@@ -2646,28 +2646,28 @@ void LoadGameData()
 	if( g_bLeft4Dead2 )
 	{
 		g_pScavengeMode = hGameData.GetOffset("ScavengeModePtr");
-		ValidateOffset(g_pScavengeMode, "ScavengeModePtr");
+		ValidateOffset(view_as<int>(g_pScavengeMode), "ScavengeModePtr");
 
 		g_pVersusMode = hGameData.GetOffset("VersusModePtr");
-		ValidateOffset(g_pVersusMode, "VersusModePtr");
+		ValidateOffset(view_as<int>(g_pVersusMode), "VersusModePtr");
 
 		g_pSurvivalMode = hGameData.GetOffset("SurvivalModePtr");
-		ValidateOffset(g_pSurvivalMode, "SurvivalModePtr");
+		ValidateOffset(view_as<int>(g_pSurvivalMode), "SurvivalModePtr");
 
 		g_pScriptedEventManager = hGameData.GetOffset("ScriptedEventManagerPtr");
-		ValidateOffset(g_pScriptedEventManager, "ScriptedEventManagerPtr");
+		ValidateOffset(view_as<int>(g_pScriptedEventManager), "ScriptedEventManagerPtr");
 
 		g_pItemManager = hGameData.GetOffset("ItemManagerPtr");
-		ValidateOffset(g_pItemManager, "ItemManagerPtr");
+		ValidateOffset(view_as<int>(g_pItemManager), "ItemManagerPtr");
 
 		g_pMusicBanks = hGameData.GetOffset("MusicBanksPtr");
-		ValidateOffset(g_pMusicBanks, "MusicBanksPtr");
+		ValidateOffset(view_as<int>(g_pMusicBanks), "MusicBanksPtr");
 
 		g_pSessionManager = hGameData.GetOffset("SessionManagerPtr");
-		ValidateOffset(g_pSessionManager, "SessionManagerPtr");
+		ValidateOffset(view_as<int>(g_pSessionManager), "SessionManagerPtr");
 
 		g_pChallengeMode = hGameData.GetOffset("ChallengeModePtr");
-		ValidateOffset(g_pChallengeMode, "ChallengeModePtr");
+		ValidateOffset(view_as<int>(g_pChallengeMode), "ChallengeModePtr");
 
 		g_pTheNextBots = SDKCall(g_hSDK_TheNextBots);
 
@@ -2755,28 +2755,28 @@ void LoadGameData()
 		g_pMeleeWeaponInfoStore = hGameData.GetAddress("MeleeWeaponInfoStore");
 		ValidateAddress(g_pMeleeWeaponInfoStore, "g_pMeleeWeaponInfoStore", true);
 
-		g_pScriptedEventManager = LoadFromAddress(g_pDirector + view_as<Address>(g_pScriptedEventManager), NumberType_Int32);
+		g_pScriptedEventManager = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pScriptedEventManager));
 		ValidateAddress(g_pScriptedEventManager, "ScriptedEventManagerPtr", true);
 
-		g_pVersusMode = LoadFromAddress(g_pDirector + view_as<Address>(g_pVersusMode), NumberType_Int32);
+		g_pVersusMode = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pVersusMode));
 		ValidateAddress(g_pVersusMode, "VersusModePtr", true);
 
-		g_pScavengeMode = LoadFromAddress(g_pDirector + view_as<Address>(g_pScavengeMode), NumberType_Int32);
+		g_pScavengeMode = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pScavengeMode));
 		ValidateAddress(g_pScavengeMode, "ScavengeModePtr", true);
 
-		g_pSurvivalMode = LoadFromAddress(g_pDirector + view_as<Address>(g_pSurvivalMode), NumberType_Int32);
+		g_pSurvivalMode = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pSurvivalMode));
 		ValidateAddress(g_pSurvivalMode, "g_pSurvivalMode", true);
 
-		g_pItemManager = LoadFromAddress(g_pDirector + view_as<Address>(g_pItemManager), NumberType_Int32);
+		g_pItemManager = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pItemManager));
 		ValidateAddress(g_pItemManager, "ItemManagerPtr", true);
 
-		g_pMusicBanks = LoadFromAddress(g_pDirector + view_as<Address>(g_pMusicBanks), NumberType_Int32);
+		g_pMusicBanks = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pMusicBanks));
 		ValidateAddress(g_pMusicBanks, "MusicBanksPtr", true);
 
-		g_pSessionManager = LoadFromAddress(g_pDirector + view_as<Address>(g_pSessionManager), NumberType_Int32);
+		g_pSessionManager = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pSessionManager));
 		ValidateAddress(g_pSessionManager, "SessionManagerPtr", true);
 
-		g_pChallengeMode = LoadFromAddress(g_pDirector + view_as<Address>(g_pChallengeMode), NumberType_Int32);
+		g_pChallengeMode = LoadAddressFromAddress(g_pDirector + view_as<Address>(g_pChallengeMode));
 		ValidateAddress(g_pChallengeMode, "ChallengeModePtr", true);
 	} else {
 		// L4D1: g_pDirector is also g_pVersusMode.
@@ -3024,9 +3024,9 @@ void LoadGameData()
 		L4D2CountdownTimer_Offsets[4] = hGameData.GetOffset("L4D2CountdownTimer_SpitterSpawnTimer") + view_as<int>(g_pDirector);
 		L4D2CountdownTimer_Offsets[5] = hGameData.GetOffset("L4D2CountdownTimer_JockeySpawnTimer") + view_as<int>(g_pDirector);
 		L4D2CountdownTimer_Offsets[6] = hGameData.GetOffset("L4D2CountdownTimer_ChargerSpawnTimer") + view_as<int>(g_pDirector);
-		L4D2CountdownTimer_Offsets[7] = hGameData.GetOffset("L4D2CountdownTimer_VersusStartTimer") + g_pVersusMode;
+		L4D2CountdownTimer_Offsets[7] = hGameData.GetOffset("L4D2CountdownTimer_VersusStartTimer") + view_as<int>(g_pVersusMode);
 		L4D2CountdownTimer_Offsets[8] = hGameData.GetOffset("L4D2CountdownTimer_UpdateMarkersTimer") + view_as<int>(g_pDirector);
-		L4D2CountdownTimer_Offsets[9] = hGameData.GetOffset("L4D2CountdownTimer_SurvivalSetupTimer") + g_pSurvivalMode;
+		L4D2CountdownTimer_Offsets[9] = hGameData.GetOffset("L4D2CountdownTimer_SurvivalSetupTimer") + view_as<int>(g_pSurvivalMode);
 		L4D2IntervalTimer_Offsets[0] = hGameData.GetOffset("L4D2IntervalTimer_SmokerDeathTimer") + view_as<int>(g_pDirector);
 		L4D2IntervalTimer_Offsets[1] = hGameData.GetOffset("L4D2IntervalTimer_BoomerDeathTimer") + view_as<int>(g_pDirector);
 		L4D2IntervalTimer_Offsets[2] = hGameData.GetOffset("L4D2IntervalTimer_HunterDeathTimer") + view_as<int>(g_pDirector);

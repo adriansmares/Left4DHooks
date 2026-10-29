@@ -204,7 +204,7 @@ Handle g_hSDK_InfoChangeLevel_IsEntitySaveable;
 // ====================================================================================================
 //										NATIVES
 // ====================================================================================================
-void ValidateAddress(any addr, const char[] name, bool check = false)
+void ValidateAddress(int64 addr, const char[] name, bool check = false)
 {
 	if( addr == Address_Null )
 	{
@@ -311,47 +311,48 @@ any Native_GetPointer(Handle plugin, int numParams) // Native "L4D_GetPointer"
 {
 	PointerType ptr_type = GetNativeCell(1);
 
+	Address ptr = Address_Null;
 	switch( ptr_type )
 	{
-		case POINTER_DIRECTOR:			return g_pDirector;
-		case POINTER_SERVER:			return g_pServer;
-		case POINTER_ENGINE:			return g_pEngine;
-		case POINTER_GAMERULES:			return g_pGameRules;
-		case POINTER_NAVMESH:			return g_pNavMesh;
-		case POINTER_ZOMBIEMANAGER:		return g_pZombieManager;
-		case POINTER_WEAPONINFO:		return g_pWeaponInfoDatabase;
-		case POINTER_MELEEINFO:			return g_pMeleeWeaponInfoStore;
-		case POINTER_EVENTMANAGER:		return g_pScriptedEventManager;
-		case POINTER_SCAVENGEMODE:		return g_pScavengeMode;
-		case POINTER_VERSUSMODE:		return g_pVersusMode;
-		case POINTER_SCRIPTVM:			return g_pScriptVM;
-		case POINTER_THENAVAREAS:		return g_pTheNavAreas;
-		case POINTER_MISSIONINFO:		return SDKCall(g_hSDK_CTerrorGameRules_GetMissionInfo);
-		case POINTER_SURVIVALMODE:		return g_pSurvivalMode;
-		case POINTER_AMMODEF:			return g_pAmmoDef;
-		case POINTER_ITEMMANAGER:		return g_pItemManager;
-		case POINTER_MUSICBANKS:		return g_pMusicBanks;
-		case POINTER_SESSIONMANAGER:	return g_pSessionManager;
-		case POINTER_CHALLENGEMODE:		return g_pChallengeMode;
-		case POINTER_THENEXTBOTS:		return g_pTheNextBots;
+		case POINTER_DIRECTOR:			ptr = g_pDirector;
+		case POINTER_SERVER:			ptr = g_pServer;
+		case POINTER_ENGINE:			ptr = g_pEngine;
+		case POINTER_GAMERULES:			ptr = g_pGameRules;
+		case POINTER_NAVMESH:			ptr = g_pNavMesh;
+		case POINTER_ZOMBIEMANAGER:		ptr = g_pZombieManager;
+		case POINTER_WEAPONINFO:		ptr = g_pWeaponInfoDatabase;
+		case POINTER_MELEEINFO:			ptr = g_pMeleeWeaponInfoStore;
+		case POINTER_EVENTMANAGER:		ptr = g_pScriptedEventManager;
+		case POINTER_SCAVENGEMODE:		ptr = g_pScavengeMode;
+		case POINTER_VERSUSMODE:		ptr = g_pVersusMode;
+		case POINTER_SCRIPTVM:			ptr = g_pScriptVM;
+		case POINTER_THENAVAREAS:		ptr = g_pTheNavAreas;
+		case POINTER_MISSIONINFO:		ptr = SDKCall(g_hSDK_CTerrorGameRules_GetMissionInfo);
+		case POINTER_SURVIVALMODE:		ptr = g_pSurvivalMode;
+		case POINTER_AMMODEF:			ptr = g_pAmmoDef;
+		case POINTER_ITEMMANAGER:		ptr = g_pItemManager;
+		case POINTER_MUSICBANKS:		ptr = g_pMusicBanks;
+		case POINTER_SESSIONMANAGER:	ptr = g_pSessionManager;
+		case POINTER_CHALLENGEMODE:		ptr = g_pChallengeMode;
+		case POINTER_THENEXTBOTS:		ptr = g_pTheNextBots;
 	}
 
-	return 0;
+	return SetNativeReturnAddress(ptr);
 }
 
 int Native_GetClientFromAddress(Handle plugin, int numParams) // Native "L4D_GetClientFromAddress"
 {
-	return GetClientFromAddress(GetNativeCell(1));
+	return GetClientFromAddress(GetNativeAddress(1));
 }
 
 int Native_GetEntityFromAddress(Handle plugin, int numParams) // Native "L4D_GetEntityFromAddress"
 {
-	return GetEntityFromAddress(GetNativeCell(1));
+	return GetEntityFromAddress(GetNativeAddress(1));
 }
 
 int Native_ReadMemoryString(Handle plugin, int numParams) // Native "L4D_ReadMemoryString"
 {
-	int addy = GetNativeCell(1);
+	Address addy = GetNativeAddress(1);
 	int maxlength = GetNativeCell(3);
 	char[] buffer = new char[maxlength];
 
@@ -364,7 +365,7 @@ int Native_ReadMemoryString(Handle plugin, int numParams) // Native "L4D_ReadMem
 
 int Native_WriteMemoryString(Handle plugin, int numParams) // Native "L4D_WriteMemoryString"
 {
-	int addy = GetNativeCell(1);
+	Address addy = GetNativeAddress(1);
 
 	int maxlength;
 	GetNativeStringLength(2, maxlength);
@@ -421,9 +422,9 @@ stock int GetEntityFromHandle(any handle)
 	return ent;
 }
 
-stock any Deref(any addr, NumberType numt = NumberType_Int32)
+stock any Deref(Address addr, NumberType numt = NumberType_Int32)
 {
-	return LoadFromAddress(view_as<Address>(addr), numt);
+	return LoadFromAddress(addr, numt);
 }
 
 /* Old method
@@ -439,11 +440,11 @@ int GetEntityFromAddress(int addr)
 }
 */
 
-int GetClientFromAddress(int addr)
+int GetClientFromAddress(Address addr)
 {
 	for(int i = 1; i <= MaxClients; i++ )
 		if( IsClientInGame(i) )
-			if( GetEntityAddress(i) == view_as<Address>(addr) )
+			if( GetEntityAddress(i) == addr )
 				return i;
 	return 0;
 }
@@ -1520,7 +1521,7 @@ int Native_TerrorNavArea_FindRandomSpot(Handle plugin, int numParams) // Native 
 	ValidateNatives(g_hSDK_TerrorNavArea_FindRandomSpot, "TerrorNavArea::FindRandomSpot");
 
 	float vPos[3];
-	int area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	//PrintToServer("#### CALL g_hSDK_TerrorNavArea_FindRandomSpot");
 	SDKCall(g_hSDK_TerrorNavArea_FindRandomSpot, area, vPos, sizeof(vPos));
@@ -1561,7 +1562,7 @@ int Native_IsVisibleToPlayer(Handle plugin, int numParams) // Native "L4D2_IsVis
 	int client = GetNativeCell(1);
 	int team = GetNativeCell(2);
 	int team_target = GetNativeCell(3);
-	int area = GetNativeCell(4);
+	Address area = GetNativeAddress(4);
 	GetNativeArray(5, vPos, sizeof(vPos));
 
 	//PrintToServer("#### CALL g_hSDK_IsVisibleToPlayer");
@@ -1573,7 +1574,7 @@ int Native_IsVisibleToPlayer(Handle plugin, int numParams) // Native "L4D2_IsVis
 
 int Native_IsPotentiallyVisibleToTeam(Handle plugin, int numParams) // Native "L4D_IsPotentiallyVisibleToTeam"
 {
-	Address navArea = GetNativeCell(1);
+	Address navArea = GetNativeAddress(1);
 	int team = GetNativeCell(2);
 
 	if( g_bLeft4Dead2 || g_bLinuxOS )
@@ -1615,8 +1616,8 @@ int Native_IsPotentiallyVisible(Handle plugin, int numParams) // Native "L4D_IsP
 {
 	ValidateNatives(g_hSDK_TerrorNavArea_IsPotentiallyVisible, "TerrorNavArea::IsPotentiallyVisible");
 
-	Address navArea = GetNativeCell(1);
-	Address survivorArea = GetNativeCell(2);
+	Address navArea = GetNativeAddress(1);
+	Address survivorArea = GetNativeAddress(2);
 	bool checkAttributes = GetNativeCell(3);
 
 	//PrintToServer("#### CALL g_hSDK_TerrorNavArea_IsPotentiallyVisible");
@@ -1627,7 +1628,7 @@ int Native_IsCompletelyVisibleToTeam(Handle plugin, int numParams) // Native "L4
 {
 	ValidateNatives(g_hSDK_TerrorNavArea_IsCompletelyVisibleToTeam, "TerrorNavArea::IsCompletelyVisibleToTeam");
 
-	Address navArea = GetNativeCell(1);
+	Address navArea = GetNativeAddress(1);
 	int team = GetNativeCell(2);
 
 	//PrintToServer("#### CALL g_hSDK_TerrorNavArea_IsCompletelyVisibleToTeam");
@@ -1638,8 +1639,8 @@ int Native_IsCompletelyVisible(Handle plugin, int numParams) // Native "L4D_IsCo
 {
 	ValidateNatives(g_hSDK_TerrorNavArea_IsCompletelyVisible, "TerrorNavArea::IsCompletelyVisible");
 
-	Address navArea = GetNativeCell(1);
-	Address survivorArea = GetNativeCell(2);
+	Address navArea = GetNativeAddress(1);
+	Address survivorArea = GetNativeAddress(2);
 
 	//PrintToServer("#### CALL g_hSDK_TerrorNavArea_IsCompletelyVisible");
 	return SDKCall(g_hSDK_TerrorNavArea_IsCompletelyVisible, navArea, survivorArea);
@@ -2870,8 +2871,8 @@ int Native_NavAreaBuildPath(Handle plugin, int numParams) // Native "L4D2_NavAre
 	if( !g_bMapStarted ) return false;
 
 	// Params
-	int nav1 = GetNativeCell(1);
-	int nav2 = GetNativeCell(2);
+	Address nav1 = GetNativeAddress(1);
+	Address nav2 = GetNativeAddress(2);
 
 	if( nav1 && nav2 )
 	{
@@ -4181,7 +4182,7 @@ int Native_GetNavAreaID(Handle plugin, int numParams) // Native "L4D_GetNavAreaI
 		return false;
 	}
 
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	return LoadFromAddress(area + view_as<Address>(g_iOff_NavAreaID), NumberType_Int32);
 }
@@ -4205,19 +4206,19 @@ any Native_GetNavAreaByID(Handle plugin, int numParams) // Native "L4D_GetNavAre
 
 	for( int i = 0; i < size; i++ )
 	{
-		test = LoadFromAddress(g_pTheNavAreas_List + view_as<Address>(i * 4), NumberType_Int32);
+		test = LoadAddressFromAddress(g_pTheNavAreas_List + view_as<Address>(i * 4));
 		if( LoadFromAddress(test + view_as<Address>(g_iOff_NavAreaID), NumberType_Int32) == area )
 		{
-			return test;
+			return SetNativeReturnAddress(test);
 		}
 	}
 
-	return Address_Null;
+	return 0;
 }
 
 int Native_GetNavAreaPos(Handle plugin, int numParams) // Native "L4D_GetNavAreaPos"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	float vPos[3];
 
@@ -4232,7 +4233,7 @@ int Native_GetNavAreaPos(Handle plugin, int numParams) // Native "L4D_GetNavArea
 
 int Native_GetNavAreaCenter(Handle plugin, int numParams) // Native "L4D_GetNavAreaCenter"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	float vPos[3];
 
@@ -4247,7 +4248,7 @@ int Native_GetNavAreaCenter(Handle plugin, int numParams) // Native "L4D_GetNavA
 
 int Native_GetNavAreaSize(Handle plugin, int numParams) // Native "L4D_GetNavAreaSize"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	float vPos[3];
 
@@ -4268,7 +4269,7 @@ int Native_GetNavAreaSize(Handle plugin, int numParams) // Native "L4D_GetNavAre
 
 int Native_NavArea_GetCorner(Handle plugin, int numParams) // Native "L4D_NavArea_GetCorner"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int corner = GetNativeCell(2);
 
 	float vPos[3];
@@ -4312,7 +4313,7 @@ any Native_NavArea_GetZ(Handle plugin, int numParams) // Native "L4D_NavArea_Get
 
 	float vPos[3];
 
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	GetNativeArray(2, vPos, sizeof(vPos));
 
 	float z = SDKCall(g_hSDK_CNavArea_GetZ, area, vPos[0], vPos[1]);
@@ -4322,11 +4323,11 @@ any Native_NavArea_GetZ(Handle plugin, int numParams) // Native "L4D_NavArea_Get
 
 int Native_CNavArea_GetAdjacentCount(Handle plugin, int numParams) // Native "L4D_NavArea_GetAdjacentCount"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int dir = GetNativeCell(2);
 
 	// Hard-coding offset, unlikely to change. Found in "TerrorNavArea::ScriptGetAdjacentAreas"
-	Address ptr = view_as<Address>(LoadFromAddress(area + view_as<Address>(88) + view_as<Address>(4 * dir), NumberType_Int32));
+	Address ptr = LoadAddressFromAddress(area + view_as<Address>(88) + view_as<Address>(4 * dir));
 	int count = LoadFromAddress(ptr, NumberType_Int32);
 
 	return count;
@@ -4334,19 +4335,41 @@ int Native_CNavArea_GetAdjacentCount(Handle plugin, int numParams) // Native "L4
 
 int Native_CNavArea_GetAdjacentAreas(Handle plugin, int numParams) // Native "L4D_NavArea_GetAdjacentAreas"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int dir = GetNativeCell(2);
 	ArrayList list = GetNativeCell(3);
 
 	// Hard-coding offset, unlikely to change. Found in "TerrorNavArea::ScriptGetAdjacentAreas"
-	Address ptr = view_as<Address>(LoadFromAddress(area + view_as<Address>(88) + view_as<Address>(4 * dir), NumberType_Int32));
+	Address ptr = LoadAddressFromAddress(area + view_as<Address>(88) + view_as<Address>(4 * dir));
 	int count = LoadFromAddress(ptr, NumberType_Int32);
-	int adjacent;
 
 	for( int i = 0; i < count; i++ )
 	{
-		adjacent = LoadFromAddress(ptr + view_as<Address>(4 * (2 * i + 1)), NumberType_Int32);
-		list.Push(adjacent);
+		list.Push(LoadFromAddress(ptr + view_as<Address>(4 * (2 * i + 1)), NumberType_Int32));
+	}
+
+	return count;
+}
+
+int Native_CNavArea_FillAdjacentAreas(Handle plugin, int numParams) // Native "L4D_NavArea_FillAdjacentAreas"
+{
+	Address area = GetNativeAddress(1);
+	int dir = GetNativeCell(2);
+	int maxlen = GetNativeCell(4);
+
+	// Hard-coding offset, unlikely to change. Found in "TerrorNavArea::ScriptGetAdjacentAreas"
+	Address ptr = LoadAddressFromAddress(area + view_as<Address>(88) + view_as<Address>(4 * dir));
+	int count = LoadFromAddress(ptr, NumberType_Int32);
+	int size = count < maxlen ? count : maxlen;
+
+	if( size > 0 )
+	{
+		Address[] adjacent = new Address[size];
+		for( int i = 0; i < size; i++ )
+		{
+			adjacent[i] = LoadAddressFromAddress(ptr + view_as<Address>(4 * (2 * i + 1)));
+		}
+		SetNativeAddressArray(3, adjacent, size);
 	}
 
 	return count;
@@ -4356,8 +4379,8 @@ int Native_CNavArea_ConnectTo(Handle plugin, int numParams) // Native "L4D_NavAr
 {
 	ValidateNatives(g_hSDK_CNavArea_ConnectTo, "CNavArea::ConnectTo");
 
-	Address area1 = GetNativeCell(1);
-	Address area2 = GetNativeCell(2);
+	Address area1 = GetNativeAddress(1);
+	Address area2 = GetNativeAddress(2);
 	int dir = GetNativeCell(3);
 
 	if( dir != -1 && (dir < 1 || dir > 4) ) ThrowError("Invalid direction specified: %d should be 1-4 or -1 to automatically apply", dir);
@@ -4369,8 +4392,8 @@ int Native_CNavArea_IsConnected(Handle plugin, int numParams) // Native "L4D_Nav
 {
 	ValidateNatives(g_hSDK_CNavArea_IsConnected, "CNavArea::IsConnected");
 
-	Address area1 = GetNativeCell(1);
-	Address area2 = GetNativeCell(2);
+	Address area1 = GetNativeAddress(1);
+	Address area2 = GetNativeAddress(2);
 	int dir = GetNativeCell(3);
 
 	if( dir < 0 || dir > 4 ) ThrowError("Invalid direction specified: %d should be 0-4", dir);
@@ -4382,7 +4405,7 @@ int Native_CNavArea_IsBlocked(Handle plugin, int numParams) // Native "L4D_NavAr
 {
 	ValidateNatives(g_hSDK_CNavArea_IsBlocked, "CNavArea::IsBlocked");
 
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int team = GetNativeCell(2);
 	bool flow = GetNativeCell(3);
 
@@ -4391,7 +4414,7 @@ int Native_CNavArea_IsBlocked(Handle plugin, int numParams) // Native "L4D_NavAr
 
 int Native_CNavArea_GetElevator(Handle plugin, int numParams) // Native "L4D_NavArea_GetElevator"
 {
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	if( L4D_GetNavArea_AttributeFlags(area) & 0x40000000 )
 	{
@@ -4413,13 +4436,13 @@ int Native_CNavArea_GetLadder(Handle plugin, int numParams) // Native "L4D_GetNa
 {
 	int entity, count, total;
 	Address basePtr, ladderPtr;
-	Address area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	ArrayList aList = GetNativeCell(2);
 
 	for( int index = 0; index < 2; index++ )
 	{
 		basePtr = area + view_as<Address>(g_iOff_NavAreaLadderBase + (index * 4));
-		basePtr = LoadFromAddress(basePtr + view_as<Address>(8), NumberType_Int32);
+		basePtr = LoadAddressFromAddress(basePtr + view_as<Address>(8));
 		count = LoadFromAddress(basePtr, NumberType_Int32);
 
 		if( count <= 0 || count > 64 )
@@ -4427,7 +4450,7 @@ int Native_CNavArea_GetLadder(Handle plugin, int numParams) // Native "L4D_GetNa
 
 		for( int x = 0; x < count; x++ )
 		{
-			ladderPtr = LoadFromAddress(basePtr + view_as<Address>(4 * (x + 1)), NumberType_Int32);
+			ladderPtr = LoadAddressFromAddress(basePtr + view_as<Address>(4 * (x + 1)));
 			entity = LoadFromAddress(ladderPtr + view_as<Address>(g_iOff_NavAreaLadderEntity), NumberType_Int32);
 			entity &= 0xFFF;
 
@@ -4444,22 +4467,22 @@ int Native_CNavArea_GetLadder(Handle plugin, int numParams) // Native "L4D_GetNa
 
 int Native_GetTerrorNavArea_Attributes(Handle plugin, int numParams) // Native "L4D_GetNavArea_SpawnAttributes"
 {
-	int area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	return GetTerrorNavArea_Attributes(area);
 }
 
-int GetTerrorNavArea_Attributes(any area)
+int GetTerrorNavArea_Attributes(Address area)
 {
 	ValidateAddress(g_iOff_m_spawnAttributes, "m_spawnAttributes");
 
-	return LoadFromAddress(view_as<Address>(area + g_iOff_m_spawnAttributes), NumberType_Int32);
+	return LoadFromAddress(area + view_as<Address>(g_iOff_m_spawnAttributes), NumberType_Int32);
 }
 
 int Native_SetTerrorNavArea_Attributes(Handle plugin, int numParams) // Native "L4D_SetNavArea_SpawnAttributes"
 {
 	ValidateAddress(g_iOff_m_spawnAttributes, "m_spawnAttributes");
 
-	int area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int flags = GetNativeCell(2);
 
 	StoreToAddress(view_as<Address>(area + g_iOff_m_spawnAttributes), flags, NumberType_Int32);
@@ -4471,7 +4494,7 @@ int Native_GetCNavArea_AttributeFlags(Handle plugin, int numParams) // Native "L
 {
 	ValidateAddress(g_iOff_m_attributeFlags, "m_attributeFlags");
 
-	int area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 
 	return LoadFromAddress(view_as<Address>(area + g_iOff_m_attributeFlags), NumberType_Int32);
 }
@@ -4480,7 +4503,7 @@ int Native_SetCNavArea_AttributeFlags(Handle plugin, int numParams) // Native "L
 {
 	ValidateAddress(g_iOff_m_attributeFlags, "m_attributeFlags");
 
-	int area = GetNativeCell(1);
+	Address area = GetNativeAddress(1);
 	int flags = GetNativeCell(2);
 
 	StoreToAddress(view_as<Address>(area + g_iOff_m_attributeFlags), flags, NumberType_Int32);
@@ -4760,7 +4783,7 @@ any Direct_GetMobSpawnTimer(Handle plugin, int numParams) // Native "L4D2Direct_
 	ValidateAddress(g_pDirector, "g_pDirector");
 	ValidateAddress(g_iOff_MobSpawnTimer, "MobSpawnTimer");
 
-	return view_as<CountdownTimer>(g_pDirector + view_as<Address>(g_iOff_MobSpawnTimer));
+	return view_as<CountdownTimer>(view_as<int>(g_pDirector + view_as<Address>(g_iOff_MobSpawnTimer)));
 }
 
 any Direct_GetSIClassDeathTimer(Handle plugin, int numParams) // Native "L4D2Direct_GetSIClassDeathTimer"
@@ -4771,7 +4794,7 @@ any Direct_GetSIClassDeathTimer(Handle plugin, int numParams) // Native "L4D2Dir
 	if( class < 1 || class > 6 ) return CTimer_Null;
 
 	int offset = L4D2IntervalTimer_Offsets[class - 1];
-	return view_as<IntervalTimer>(view_as<Address>(offset));
+	return view_as<IntervalTimer>(view_as<int>(view_as<Address>(offset)));
 }
 
 any Direct_GetSIClassSpawnTimer(Handle plugin, int numParams) // Native "L4D2Direct_GetSIClassSpawnTimer"
@@ -4782,7 +4805,7 @@ any Direct_GetSIClassSpawnTimer(Handle plugin, int numParams) // Native "L4D2Dir
 	if( class < 1 || class > 6 ) return CTimer_Null;
 
 	int offset = L4D2CountdownTimer_Offsets[class];
-	return view_as<CountdownTimer>(view_as<Address>(offset));
+	return view_as<CountdownTimer>(view_as<int>(view_as<Address>(offset)));
 }
 
 int Direct_GetTankPassedCount(Handle plugin, int numParams) // Native "L4D2Direct_GetTankPassedCount"
@@ -4971,10 +4994,10 @@ any Direct_GetVSStartTimer(Handle plugin, int numParams) // Native "L4D2Direct_G
 	if( g_bLeft4Dead2 )
 		offset = L4D2CountdownTimer_Offsets[7]; // L4D2CountdownTimer_VersusStartTimer
 	else
-		offset = g_pVersusMode + g_iOff_VersusStartTimer;
+		offset = view_as<int>(g_pVersusMode) + g_iOff_VersusStartTimer;
 
 	ValidateAddress(offset, "VersusStartTimer");
-	return view_as<CountdownTimer>(view_as<Address>(offset));
+	return view_as<CountdownTimer>(view_as<int>(view_as<Address>(offset)));
 }
 
 any Direct_GetScavengeRoundSetupTimer(Handle plugin, int numParams) // Native "L4D2Direct_GetScavengeRoundSetupTimer"
@@ -4984,7 +5007,7 @@ any Direct_GetScavengeRoundSetupTimer(Handle plugin, int numParams) // Native "L
 	ValidateAddress(g_pScavengeMode, "ScavengeModePtr");
 	ValidateAddress(g_iOff_OnBeginRoundSetupTime, "OnBeginRoundSetupTime");
 
-	return view_as<CountdownTimer>(view_as<Address>(g_pScavengeMode + g_iOff_OnBeginRoundSetupTime));
+	return view_as<CountdownTimer>(view_as<int>(view_as<Address>(g_pScavengeMode + g_iOff_OnBeginRoundSetupTime)));
 }
 
 any Direct_GetScavengeOvertimeGraceTimer(Handle plugin, int numParams) // Native "L4D2Direct_GetScavengeOvertimeGraceTimer"
@@ -4994,7 +5017,7 @@ any Direct_GetScavengeOvertimeGraceTimer(Handle plugin, int numParams) // Native
 	ValidateAddress(g_pScavengeMode, "ScavengeModePtr");
 	ValidateAddress(g_iOff_OvertimeGraceTimer, "OvertimeGraceTimer");
 
-	return view_as<CountdownTimer>(view_as<Address>(g_pScavengeMode + g_iOff_OvertimeGraceTimer));
+	return view_as<CountdownTimer>(view_as<int>(view_as<Address>(g_pScavengeMode + g_iOff_OvertimeGraceTimer)));
 }
 
 any Direct_GetMapMaxFlowDistance(Handle plugin, int numParams) // Native "L4D2Direct_GetMapMaxFlowDistance"
@@ -5030,7 +5053,7 @@ any Direct_GetInvulnerabilityTimer(Handle plugin, int numParams) // Native "L4D2
 	if( pEntity == Address_Null )
 		return CTimer_Null;
 
-	return view_as<CountdownTimer>(pEntity + view_as<Address>(g_iOff_InvulnerabilityTimer));
+	return view_as<CountdownTimer>(view_as<int>(pEntity + view_as<Address>(g_iOff_InvulnerabilityTimer)));
 }
 
 int Direct_GetTankTickets(Handle plugin, int numParams) // Native "L4D2Direct_GetTankTickets"
@@ -5298,7 +5321,7 @@ int Direct_GetScriptedEventManager(Handle plugin, int numParams) // Native "L4D2
 
 	ValidateAddress(g_pScriptedEventManager, "ScriptedEventManagerPtr");
 
-	return g_pScriptedEventManager;
+	return SetNativeReturnAddress(g_pScriptedEventManager);
 }
 
 any Direct_GetTerrorNavArea(Handle plugin, int numParams) // Native "L4D2Direct_GetTerrorNavArea"
@@ -5317,7 +5340,7 @@ any Direct_GetTerrorNavArea(Handle plugin, int numParams) // Native "L4D2Direct_
 
 any Direct_GetTerrorNavAreaFlow(Handle plugin, int numParams) // Native "L4D2Direct_GetTerrorNavAreaFlow"
 {
-	Address pTerrorNavArea = GetNativeCell(1);
+	Address pTerrorNavArea = GetNativeAddress(1);
 	return GetTerrorNavAreaFlow(pTerrorNavArea);
 }
 
@@ -5663,32 +5686,32 @@ float Stock_ITimer_GetElapsedTime(IntervalTimer timer)
 /* Timer Internals */
 float Stock_CTimer_GetDuration(CountdownTimer timer)
 {
-	return view_as<float>(LoadFromAddress(view_as<Address>(timer) + CTIMER_DURATION_OFFSET, NumberType_Int32));
+	return view_as<float>(LoadFromAddress(view_as<Address>(view_as<int>(timer)) + CTIMER_DURATION_OFFSET, NumberType_Int32));
 }
 
 void Stock_CTimer_SetDuration(CountdownTimer timer, float duration)
 {
-	StoreToAddress(view_as<Address>(timer) + CTIMER_DURATION_OFFSET, view_as<int>(duration), NumberType_Int32, false);
+	StoreToAddress(view_as<Address>(view_as<int>(timer)) + CTIMER_DURATION_OFFSET, view_as<int>(duration), NumberType_Int32, false);
 }
 
 float Stock_CTimer_GetTimestamp(CountdownTimer timer)
 {
-	return view_as<float>(LoadFromAddress(view_as<Address>(timer) + CTIMER_TIMESTAMP_OFFSET, NumberType_Int32));
+	return view_as<float>(LoadFromAddress(view_as<Address>(view_as<int>(timer)) + CTIMER_TIMESTAMP_OFFSET, NumberType_Int32));
 }
 
 void Stock_CTimer_SetTimestamp(CountdownTimer timer, float timestamp)
 {
-	StoreToAddress(view_as<Address>(timer) + CTIMER_TIMESTAMP_OFFSET, view_as<int>(timestamp), NumberType_Int32, false);
+	StoreToAddress(view_as<Address>(view_as<int>(timer)) + CTIMER_TIMESTAMP_OFFSET, view_as<int>(timestamp), NumberType_Int32, false);
 }
 
 float Stock_ITimer_GetTimestamp(IntervalTimer timer)
 {
-	return view_as<float>(LoadFromAddress(view_as<Address>(timer) + ITIMER_TIMESTAMP_OFFSET, NumberType_Int32));
+	return view_as<float>(LoadFromAddress(view_as<Address>(view_as<int>(timer)) + ITIMER_TIMESTAMP_OFFSET, NumberType_Int32));
 }
 
 void Stock_ITimer_SetTimestamp(IntervalTimer timer, float timestamp)
 {
-	StoreToAddress(view_as<Address>(timer) + ITIMER_TIMESTAMP_OFFSET, view_as<int>(timestamp), NumberType_Int32, false);
+	StoreToAddress(view_as<Address>(view_as<int>(timer)) + ITIMER_TIMESTAMP_OFFSET, view_as<int>(timestamp), NumberType_Int32, false);
 }
 
 
@@ -6593,7 +6616,7 @@ any Native_PlayerAnimState_FromPlayer(Handle plugin, int numParams)
 	Address anim = view_as<Address>(GetEntData(client, g_iOff_m_PlayerAnimState));
 	// null check?
 
-	return anim;
+	return view_as<int>(anim);
 }
 
 any Native_PlayerAnimState_GetMainActivity(Handle plugin, int numParams)
@@ -6896,7 +6919,7 @@ void Ammo_t_CreateNatives()
 any Native_Ammo_t_GetName(Handle plugin, int numParams)
 {
 	Address pThis = GetNativeCell(1);
-	Address pName = LoadFromAddress(pThis, NumberType_Int32);
+	Address pName = LoadAddressFromAddress(pThis);
 
 	char name[MAX_NAME_LENGTH];
 	L4D_ReadMemoryString(pName, name, sizeof(name));
@@ -7094,7 +7117,7 @@ int AmmoDef_m_nAmmoIndex()
 Ammo_t AmmoDef_m_AmmoType(int i)
 {
 	static const int sizeof_Ammo_t = 52;
-	return view_as<Ammo_t>(view_as<Address>(g_pAmmoDef) + view_as<Address>(i * sizeof_Ammo_t) + view_as<Address>(8));
+	return view_as<Ammo_t>(view_as<int>(view_as<Address>(g_pAmmoDef) + view_as<Address>(i * sizeof_Ammo_t) + view_as<Address>(8)));
 }
 
 any Native_AmmoDef_GetAmmoOfIndex(Handle plugin, int numParams)
@@ -7102,7 +7125,7 @@ any Native_AmmoDef_GetAmmoOfIndex(Handle plugin, int numParams)
 	int nAmmoIndex = GetNativeCell(1);
 
 	if( nAmmoIndex >= AmmoDef_m_nAmmoIndex() )
-		return view_as<Ammo_t>(Address_Null);
+		return view_as<Ammo_t>(view_as<int>(Address_Null));
 
 	return AmmoDef_m_AmmoType(nAmmoIndex);
 }

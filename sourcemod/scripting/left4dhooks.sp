@@ -369,14 +369,14 @@ int L4D2FloatMeleeWeapon_Offsets[3];
 
 
 // Pointers
-int g_pScriptedEventManager;
-int g_pVersusMode;
-int g_pSurvivalMode;
-int g_pScavengeMode;
-int g_pItemManager;
-int g_pMusicBanks;
-int g_pSessionManager;
-int g_pChallengeMode;
+Address g_pScriptedEventManager;
+Address g_pVersusMode;
+Address g_pSurvivalMode;
+Address g_pScavengeMode;
+Address g_pItemManager;
+Address g_pMusicBanks;
+Address g_pSessionManager;
+Address g_pChallengeMode;
 int g_pTheNextBots;
 Address g_pServer;
 Address g_pEngine;

@@ -225,16 +225,16 @@ void SetupForwardsNatives()
 	}
 	else
 	{
-		g_hFWD_InfoChangelevel_SaveEntities									= new GlobalForward("L4D1_OnSavingEntities",							ET_Event, Param_Cell, Param_Cell);
-		g_hFWD_InfoChangelevel_SaveEntities_Post							= new GlobalForward("L4D1_OnSavingEntities_Post",						ET_Event, Param_Cell, Param_Cell);
-		g_hFWD_InfoChangelevel_SaveEntities_PostHandled						= new GlobalForward("L4D1_OnSavingEntities_PostHandled",				ET_Event, Param_Cell, Param_Cell);
+		g_hFWD_InfoChangelevel_SaveEntities									= new GlobalForward("L4D1_OnSavingEntities",							ET_Event, Param_Cell, Param_SMAddress);
+		g_hFWD_InfoChangelevel_SaveEntities_Post							= new GlobalForward("L4D1_OnSavingEntities_Post",						ET_Event, Param_Cell, Param_SMAddress);
+		g_hFWD_InfoChangelevel_SaveEntities_PostHandled						= new GlobalForward("L4D1_OnSavingEntities_PostHandled",				ET_Event, Param_Cell, Param_SMAddress);
 	}
 
 	if( g_bLeft4Dead2 )
 	{
 		g_hFWD_CTerrorPlayer_TransitionRestore								= new GlobalForward("L4D2_OnTransitionRestore",							ET_Event, Param_Cell);
-		g_hFWD_CTerrorPlayer_TransitionRestore_Post							= new GlobalForward("L4D2_OnTransitionRestore_Post",					ET_Event, Param_Cell, Param_Cell);
-		g_hFWD_CTerrorPlayer_TransitionRestore_PostHandled					= new GlobalForward("L4D2_OnTransitionRestore_PostHandled",				ET_Event, Param_Cell, Param_Cell);
+		g_hFWD_CTerrorPlayer_TransitionRestore_Post							= new GlobalForward("L4D2_OnTransitionRestore_Post",					ET_Event, Param_Cell, Param_SMAddress);
+		g_hFWD_CTerrorPlayer_TransitionRestore_PostHandled					= new GlobalForward("L4D2_OnTransitionRestore_PostHandled",				ET_Event, Param_Cell, Param_SMAddress);
 		g_hFWD_RestoreTransitionedSurvivorBots								= new GlobalForward("L4D2_OnRestoreTransitionedSurvivorBots",			ET_Event);
 		g_hFWD_RestoreTransitionedSurvivorBots_Post							= new GlobalForward("L4D2_OnRestoreTransitionedSurvivorBots_Post",		ET_Event);
 		g_hFWD_RestoreTransitionedSurvivorBots_PostHandled					= new GlobalForward("L4D2_OnRestoreTransitionedSurvivorBots_PostHandled",	ET_Event);
@@ -344,7 +344,7 @@ void SetupForwardsNatives()
 	// =========================
 	CreateNative("L4D_PrecacheParticle",							Native_PrecacheParticle);
 	CreateNative("L4D_RemoveEntityDelay",							Native_RemoveEntityDelay);
-	CreateNative("L4D_GetPointer",		 							Native_GetPointer);
+	CreateNative("L4D_GetPointer",		 							Native_GetPointer, NativeFlag_ReturnsAddress);
 	CreateNative("L4D_GetClientFromAddress",		 				Native_GetClientFromAddress);
 	CreateNative("L4D_GetEntityFromAddress",		 				Native_GetEntityFromAddress);
 	CreateNative("L4D_ReadMemoryString",		 					Native_ReadMemoryString);
@@ -388,8 +388,8 @@ void SetupForwardsNatives()
 	CreateNative("L4D_GetClusterForOrigin",		 					Native_GetClusterForOrigin);
 	CreateNative("L4D_GetPVSForCluster",		 					Native_GetPVSForCluster);
 	CreateNative("L4D_CheckOriginInPVS",		 					Native_CheckOriginInPVS);
-	CreateNative("L4D_GetNearestNavArea",		 					Native_CNavMesh_GetNearestNavArea);
-	CreateNative("L4D_GetLastKnownArea",		 					Native_CTerrorPlayer_GetLastKnownArea);
+	CreateNative("L4D_GetNearestNavArea",		 					Native_CNavMesh_GetNearestNavArea, NativeFlag_ReturnsAddress);
+	CreateNative("L4D_GetLastKnownArea",		 					Native_CTerrorPlayer_GetLastKnownArea, NativeFlag_ReturnsAddress);
 	CreateNative("L4D_IsTouchingTrigger",		 					Native_CBaseTrigger_IsTouching);
 	CreateNative("L4D_FindEntityByClassnameNearest",		 		Native_CGlobalEntityList_FindEntityByClassnameNearest);
 	CreateNative("L4D_FindEntityByClassnameWithin",		 			Native_CGlobalEntityList_FindEntityByClassnameWithin);
@@ -488,7 +488,7 @@ void SetupForwardsNatives()
 	CreateNative("L4D_GetCurrentChapter",							Native_GetCurrentChapter);
 	CreateNative("L4D_GetAllNavAreas",								Native_GetAllNavAreas);
 	CreateNative("L4D_GetNavAreaID",								Native_GetNavAreaID);
-	CreateNative("L4D_GetNavAreaByID",								Native_GetNavAreaByID);
+	CreateNative("L4D_GetNavAreaByID",								Native_GetNavAreaByID, NativeFlag_ReturnsAddress);
 	CreateNative("L4D_GetNavAreaPos",								Native_GetNavAreaPos);
 	CreateNative("L4D_GetNavAreaCenter",							Native_GetNavAreaCenter);
 	CreateNative("L4D_GetNavAreaSize",								Native_GetNavAreaSize);
@@ -496,6 +496,7 @@ void SetupForwardsNatives()
 	CreateNative("L4D_NavArea_GetZ",								Native_NavArea_GetZ);
 	CreateNative("L4D_NavArea_GetAdjacentCount",					Native_CNavArea_GetAdjacentCount);
 	CreateNative("L4D_NavArea_GetAdjacentAreas",					Native_CNavArea_GetAdjacentAreas);
+	CreateNative("L4D_NavArea_FillAdjacentAreas",					Native_CNavArea_FillAdjacentAreas);
 	CreateNative("L4D_NavArea_ConnectTo",							Native_CNavArea_ConnectTo);
 	CreateNative("L4D_NavArea_IsConnected",							Native_CNavArea_IsConnected);
 	CreateNative("L4D_NavArea_IsBlocked",							Native_CNavArea_IsBlocked);
@@ -583,7 +584,7 @@ void SetupForwardsNatives()
 	CreateNative("L4D2Direct_GetInvulnerabilityTimer",				Direct_GetInvulnerabilityTimer);
 	CreateNative("L4D2Direct_GetTankTickets",						Direct_GetTankTickets);
 	CreateNative("L4D2Direct_SetTankTickets",						Direct_SetTankTickets);
-	CreateNative("L4D2Direct_GetTerrorNavArea",						Direct_GetTerrorNavArea);
+	CreateNative("L4D2Direct_GetTerrorNavArea",						Direct_GetTerrorNavArea, NativeFlag_ReturnsAddress);
 	CreateNative("L4D2Direct_GetTerrorNavAreaFlow",					Direct_GetTerrorNavAreaFlow);
 	CreateNative("L4D2Direct_TryOfferingTankBot",					Direct_TryOfferingTankBot);
 	CreateNative("L4D2Direct_AddSurvivorBot",						Direct_AddSurvivorBot);
@@ -634,7 +635,7 @@ void SetupForwardsNatives()
 	CreateNative("L4D2Direct_SetPreIncapHealthBuffer",				Direct_SetPreIncapHealthBuffer);
 	CreateNative("L4D2Direct_GetInfernoMaxFlames",					Direct_GetInfernoMaxFlames);
 	CreateNative("L4D2Direct_SetInfernoMaxFlames",					Direct_SetInfernoMaxFlames);
-	CreateNative("L4D2Direct_GetScriptedEventManager",				Direct_GetScriptedEventManager);
+	CreateNative("L4D2Direct_GetScriptedEventManager",				Direct_GetScriptedEventManager, NativeFlag_ReturnsAddress);
 
 
 
